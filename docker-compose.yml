@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APP_ENV=local
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=facturacion_deberjframe
+      - DB_USERNAME=root
+      - DB_PASSWORD=root123
+    depends_on:
+      - mysql
+    networks:
+      - facturacion-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - facturacion-network
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=facturacion_deberjframe
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - facturacion-network
+
+volumes:
+  mysql-data:
+
+networks:
+  facturacion-network:
+    driver: bridge
